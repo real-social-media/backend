@@ -28,6 +28,7 @@ provider:
     MEDIACONVERT_ROLE_ARN: !GetAtt MediaCovertRole.Arn
     PINPOINT_APPLICATION_ID: !Ref PinpointApp
     REAL_USER_ID: ${env:REAL_USER_ID, 'us-east-1:8a4d7c3b-809e-4182-859c-a2bdafa1a8ae'}  # default is correct value for production
+    REAL_DATING_FUNCTION_PREFIX: 'real-${self:provider.stage}-dating'
 
     USER_NOTIFICATIONS_ENABLED: ${env:USER_NOTIFICATIONS_ENABLED, 'true'}
     USER_NOTIFICATIONS_ONLY_USERNAMES: ${env:USER_NOTIFICATIONS_ONLY_USERNAMES, ''}  # space-seperated list
@@ -112,6 +113,11 @@ provider:
     - Effect: Allow
       Action: mobiletargeting:*
       Resource: !Join [ /, [ !GetAtt PinpointApp.Arn, '*' ] ]
+    - Effect: Allow
+      Action: lambda:InvokeFuction
+      Resource:
+        - 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:provider.environment.REAL_DATING_FUNCITON_PREFIX}-put-user'
+        - 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:provider.environment.REAL_DATING_FUNCITON_PREFIX}-remove-user'
 
 custom:
   sesSender:
