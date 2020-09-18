@@ -28,7 +28,10 @@ provider:
     MEDIACONVERT_ROLE_ARN: !GetAtt MediaCovertRole.Arn
     PINPOINT_APPLICATION_ID: !Ref PinpointApp
     REAL_USER_ID: ${env:REAL_USER_ID, 'us-east-1:8a4d7c3b-809e-4182-859c-a2bdafa1a8ae'}  # default is correct value for production
-    REAL_DATING_FUNCTION_PREFIX: 'real-${self:provider.stage}-dating'
+
+    REAL_DATING_PUT_USER_ARN: ${self:custom.realDating.lambdaFunctionArnPrefix}-put-user
+    REAL_DATING_REMOVE_USER_ARN: ${self:custom.realDating.lambdaFunctionArnPrefix}-remove-user
+    REAL_DATING_MATCH_STATUS_ARN: ${self:custom.realDating.lambdaFunctionArnPrefix}-match-status
 
     USER_NOTIFICATIONS_ENABLED: ${env:USER_NOTIFICATIONS_ENABLED, 'true'}
     USER_NOTIFICATIONS_ONLY_USERNAMES: ${env:USER_NOTIFICATIONS_ONLY_USERNAMES, ''}  # space-seperated list
@@ -116,10 +119,15 @@ provider:
     - Effect: Allow
       Action: lambda:InvokeFuction
       Resource:
-        - 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:provider.environment.REAL_DATING_FUNCITON_PREFIX}-put-user'
-        - 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:provider.environment.REAL_DATING_FUNCITON_PREFIX}-remove-user'
+        - ${self:provider.environment.REAL_DATING_PUT_USER_ARN}
+        - ${self:provider.environment.REAL_DATING_REMOVE_USER_ARN}
+        - ${self:provider.environment.REAL_DATING_MATCH_STATUS_ARN}
 
 custom:
+  realDating:
+    stackName: real-${self:provider.stage}-dating
+    lambdaFunctionArnPrefix: 'arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:custom.realDating.stackName}'
+
   sesSender:
     defaultAddress: 'no-reply@real.app'
     address: ${env:SES_SENDER_ADDRESS, self:custom.sesSender.defaultAddress}
@@ -304,6 +312,16 @@ custom:
         name: LambdaDataSource
         config:
           functionName: appSyncDispatch
+
+      - type: AWS_LAMBDA
+        name: RejectMatchLambdaDataSource
+        config:
+          lambdaFunctionArn: ${self:custom.realDating.lambdaFunctionArnPrefix}-reject-match
+
+      - type: AWS_LAMBDA
+        name: ApproveMatchLambdaDataSource
+        config:
+          lambdaFunctionArn: ${self:custom.realDating.lambdaFunctionArnPrefix}-approve-match
 
       - type: AMAZON_ELASTICSEARCH
         name: ElasticSearchDataSource

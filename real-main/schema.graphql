@@ -157,6 +157,10 @@ type Mutation {
   blockUser(userId: ID!): User
   unblockUser(userId: ID!): User
 
+  # Dating
+  rejectMatch(userId: ID!): Boolean
+  approveMatch(userId: ID!): Boolean
+
   # Add a Post
   #   - postId should be a random v4 uuid generated client-side
   #   - lifetime should be a ISO Duration string. Ex: 1 day: 'P1D', 1 week: 'P7D', 1 month: 'P1M', 1 year: 'P1Y'

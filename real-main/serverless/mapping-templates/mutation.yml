@@ -359,6 +359,18 @@
   response: Lambda.response.vtl
 
 - type: Mutation
+  field: rejectMatch
+  dataSource: RejectMatchLambdaDataSource
+  request: false
+  response: Lambda.response.vtl
+
+- type: Mutation
+  field: approveMatch
+  dataSource: ApproveMatchLambdaDataSource
+  request: false
+  response: Lambda.response.vtl
+
+- type: Mutation
   field: lambdaClientError
   dataSource: LambdaDataSource
   request: false

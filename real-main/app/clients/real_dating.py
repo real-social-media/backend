@@ -3,24 +3,40 @@ import os
 
 import boto3
 
-FUNCTION_PREFIX = os.environ.get('REAL_DATING_FUNCTION_PREFIX')
+PUT_USER_ARN = os.environ.get('REAL_DATING_PUT_USER_ARN')
+REMOVE_USER_ARN = os.environ.get('REAL_DATING_REMOVE_USER_ARN')
+MATCH_STATUS_ARN = os.environ.get('REAL_DATING_MATCH_STATUS_ARN')
 
 
 class RealDatingClient:
-    def __init__(self, function_prefix=FUNCTION_PREFIX):
+    def __init__(
+        self,
+        put_user_arn=PUT_USER_ARN,
+        remove_user_arn=REMOVE_USER_ARN,
+        match_status_arn=MATCH_STATUS_ARN,
+    ):
         self.boto3_client = boto3.client('lambda')
-        self.function_prefix = function_prefix
+        self.put_user_arn = put_user_arn
+        self.remove_user_arn = remove_user_arn
+        self.match_status_arn = match_status_arn
 
     def put_user(self, user_item):
         self.boto3_client.invoke(
-            FunctionName=f'{self.function_prefix}-put-user',
+            FunctionName=self.put_user_arn,
             InvocationType='Event',  # async
-            Payload=json.dumps(user_item),
+            Payload=json.dumps({'userItem': user_item}),
         )
 
     def remove_user(self, user_id):
         self.boto3_client.invoke(
-            FunctionName=f'{self.function_prefix}-remove-user',
+            FunctionName=self.remove_user_arn,
             InvocationType='Event',  # async
             Payload=json.dumps({'userId': user_id}),
+        )
+
+    def match_status(self, user_id, match_user_id):
+        self.boto3_client.invoke(
+            FunctionName=self.match_user_arn,
+            InvocationType='Event',  # async
+            Payload=json.dumps({'userId': user_id, 'matchUserId': match_user_id}),
         )

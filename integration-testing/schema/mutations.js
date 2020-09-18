@@ -852,6 +852,18 @@ module.exports.flagChatMessage = gql`
   }
 `
 
+module.exports.rejectMatch = gql`
+  mutation RejectMatch($userId: ID!) {
+    rejectMatch(userId: $userId)
+  }
+`
+
+module.exports.approveMatch = gql`
+  mutation ApproveMatch($userId: ID!) {
+    approveMatch(userId: $userId)
+  }
+`
+
 module.exports.triggerNotification = gql`
   mutation TriggerNotification($input: NotificationInput!) {
     triggerNotification(input: $input) {
