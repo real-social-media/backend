@@ -1,0 +1,11 @@
+#if ($ctx.error)
+  $util.error($ctx.error.message, $ctx.error.type)
+#end
+
+#if ($util.isNull($ctx.result))
+  #set ($status = 'NOT_MATCHED')
+#else
+  #set ($status = $ctx.result.status)
+#end
+
+$util.toJson($status)

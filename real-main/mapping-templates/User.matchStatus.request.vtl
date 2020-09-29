@@ -1,0 +1,20 @@
+#if (! $util.isNull($ctx.source.matchStatus))
+  #return ($ctx.source.matchStatus)
+#end
+
+#set ($callerUserId = $ctx.identity.cognitoIdentityId)
+#set ($targetUserId = $ctx.source.userId)
+
+## Cannot match ourselves
+#if ($targetUserId == $callerUserId)
+  #return ('NOT_MATCHED')
+#end
+
+{
+  "version": "2018-05-29",
+  "operation": "GetItem",
+  "key": {
+    "userId": {"S": $callerUserId},
+    "matchUserId": {"S": $targetUserId}
+  }
+}
