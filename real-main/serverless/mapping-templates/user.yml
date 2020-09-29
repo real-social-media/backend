@@ -230,6 +230,10 @@
   response: PassThru.response.vtl
 
 - type: User
+  field: matchedUsers
+  dataSource: DynamodbMatchesDataSource
+
+- type: User
   field: lastFoundUsersAt
   dataSource: NoneDataSource
   response: PassThru.response.vtl

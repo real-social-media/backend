@@ -22,12 +22,14 @@ provider:
     AWS_ACCOUNT_ID: '#{AWS::AccountId}'
 
     APPSYNC_GRAPHQL_URL: '#{GraphQlApi.GraphQLUrl}'
-    DYNAMO_TABLE: ${self:provider.stackName}
-    DYNAMO_FEED_TABLE: real-${self:provider.stage}-feed
     ELASTICSEARCH_DOMAIN: !GetAtt ElasticSearchDomain.DomainEndpoint
     MEDIACONVERT_ROLE_ARN: !GetAtt MediaCovertRole.Arn
     PINPOINT_APPLICATION_ID: !Ref PinpointApp
     REAL_USER_ID: ${env:REAL_USER_ID, 'us-east-1:8a4d7c3b-809e-4182-859c-a2bdafa1a8ae'}  # default is correct value for production
+
+    DYNAMO_TABLE: ${self:provider.stackName}
+    DYNAMO_FEED_TABLE: real-${self:provider.stage}-feed
+    DYNAMO_MATCHES_TABLE: real-${self:provider.stage}-dating-matches
 
     REAL_DATING_PUT_USER_ARN: ${self:custom.realDating.lambdaFunctionArnPrefix}-put-user
     REAL_DATING_REMOVE_USER_ARN: ${self:custom.realDating.lambdaFunctionArnPrefix}-remove-user
@@ -307,6 +309,11 @@ custom:
         name: DynamodbFeedDataSource
         config:
           tableName: ${self:provider.environment.DYNAMO_FEED_TABLE}
+
+      - type: AMAZON_DYNAMODB
+        name: DynamodbMatchesDataSource
+        config:
+          tableName: ${self:provider.environment.DYNAMO_MATCHES_TABLE}
 
       - type: AWS_LAMBDA
         name: LambdaDataSource

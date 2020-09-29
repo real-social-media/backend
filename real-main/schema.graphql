@@ -366,6 +366,14 @@ enum DatingStatus {
   DISABLED
 }
 
+enum MatchStatus {
+  NOT_MATCHED
+  POTENTIAL
+  REJECTED
+  APPROVED
+  CONFIRMED
+}
+
 type User {
 
   # public info readable by all logged-in users, including blocked users
@@ -413,6 +421,11 @@ type User {
   matchAgeRange: AgeRange
   matchGenders: [UserGender!]
   matchLocationRadius: Int
+
+  # User's dating matches
+  #   - private to the user themselves only
+  #   - cannot request NOT_MATCHED
+  matchedUsers(matchStatus: MatchStatus!, limit: Int, nextToken: String): PaginatedUsers
 
   # User's feed
   #   - private to the user themselves only

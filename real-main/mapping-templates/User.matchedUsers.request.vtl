@@ -1,0 +1,43 @@
+#if ($ctx.args.limit < 1 or $ctx.args.limit > 100)
+  $util.error('Limit cannot be less than 1 or greater than 100', 'ClientError')
+#end
+#set ($limit = $util.defaultIfNull($ctx.args.limit, 20))
+
+## private to the user themselves
+#set ($callerUserId = $ctx.identity.cognitoIdentityId)
+#if ($ctx.source.userId != $callerUserId)
+  #return
+#end
+
+#set ($matchStatus = $ctx.args.matchStatus)
+#if ($matchStatus == 'POTENTIAL')
+  #set ($attr = 'userIdGSIPotential')
+  #set ($index = 'GSI-potential')
+#elseif ($matchStatus == 'REJECTED')
+  #set ($attr = 'userIdGSIRejected')
+  #set ($index = 'GSI-rejected')
+#elseif ($matchStatus == 'APPROVED')
+  #set ($attr = 'userIdGSIApproved')
+  #set ($index = 'GSI-approved')
+#elseif ($matchStatus == 'CONFIRMED')
+  #set ($attr = 'userIdGSIConfirmed')
+  #set ($index = 'GSI-confirmed')
+#else
+  $util.error("Cannot request using status $matchStatus", 'ClientError')
+#end
+
+{
+  "version": "2018-05-29",
+  "operation": "Query",
+  "query": {
+    "expression": "#pk = :pk",
+    "expressionNames": {"#pk": $attr},
+    "expressionValues": {":pk": {"S": $callerUserId}}
+  },
+  "index": $index,
+  "scanIndexForward": false,
+  "limit": $limit
+  #if ($ctx.args.nextToken)
+    , "nextToken": "$ctx.args.nextToken"
+  #end
+}
