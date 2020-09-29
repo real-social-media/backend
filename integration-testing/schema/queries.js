@@ -531,3 +531,44 @@ module.exports.chatUsers = gql`
     }
   }
 `
+
+module.exports.matchedUsers = gql`
+  query MatchedUsers($matchStatus: MatchStatus) {
+    self {
+      userId
+      matchedUsers(matchStatus: $matchStatus) {
+        items {
+          userId
+        }
+      }
+    }
+  }
+`
+
+module.exports.allMatchedUsersForUser = gql`
+  query MatchedUsers($userId: ID!) {
+    user(userId: $userId) {
+      userId
+      potentialMatchedUsers: matchedUsers(matchStatus: POTENTIAL) {
+        items {
+          userId
+        }
+      }
+      rejectedMatchedUsers: matchedUsers(matchStatus: REJECTED) {
+        items {
+          userId
+        }
+      }
+      approvedMatchedUsers: matchedUsers(matchStatus: APPROVED) {
+        items {
+          userId
+        }
+      }
+      confirmedMatchedUsers: matchedUsers(matchStatus: CONFIRMED) {
+        items {
+          userId
+        }
+      }
+    }
+  }
+`

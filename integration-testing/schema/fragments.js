@@ -194,5 +194,6 @@ module.exports.simpleUserFields = gql`
       max
     }
     datingStatus
+    matchStatus
   }
 `

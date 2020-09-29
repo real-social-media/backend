@@ -17,7 +17,6 @@ beforeAll(async () => {
 })
 beforeEach(async () => await loginCache.clean())
 afterAll(async () => await loginCache.reset())
-afterEach(async () => {})
 
 test('Enable, disable dating as a BASIC user, privacy', async () => {
   const {client: ourClient, userId: ourUserId} = await loginCache.getCleanLogin()
