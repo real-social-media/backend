@@ -22,7 +22,7 @@ afterAll(async () => await loginCache.reset())
 const datingVariables = {
   fullName: 'Hunter S',
   gender: 'FEMALE',
-  location: {latitude: 30, longitude: 0},
+  location: {latitude: -30, longitude: -50}, // different from that used in other test suites
   dateOfBirth: '2000-01-01',
   matchAgeRange: {min: 20, max: 30},
   matchGenders: ['FEMALE'],
@@ -78,7 +78,7 @@ test('Ordering of potential matches', async () => {
   // check list of potential matches, order not defined
   await ourClient
     .query({query: queries.matchedUsers, variables: {matchStatus: 'POTENTIAL'}})
-    .then(({data: {user}}) => {
+    .then(({data: {self: user}}) => {
       const matchedUserIds = user.matchedUsers.items.map((i) => i.userId)
       expect(matchedUserIds.sort()).toEqual([other1UserId, other2UserId, other3UserId].sort())
     })
@@ -88,7 +88,7 @@ test('Ordering of potential matches', async () => {
   await misc.sleep(2000)
   await ourClient
     .query({query: queries.matchedUsers, variables: {matchStatus: 'POTENTIAL'}})
-    .then(({data: {user}}) => {
+    .then(({data: {self: user}}) => {
       const [firstUserId, ...otherUserIds] = user.matchedUsers.items.map((i) => i.userId)
       expect(firstUserId).toBe(other2UserId)
       expect(otherUserIds.sort()).toEqual([other1UserId, other3UserId].sort())
@@ -99,7 +99,7 @@ test('Ordering of potential matches', async () => {
   await misc.sleep(2000)
   await ourClient
     .query({query: queries.matchedUsers, variables: {matchStatus: 'POTENTIAL'}})
-    .then(({data: {user}}) => {
+    .then(({data: {self: user}}) => {
       const [lastUserId, ...firstUserIds] = user.matchedUsers.items.map((i) => i.userId).reverse()
       expect(lastUserId).toBe(other1UserId)
       expect(firstUserIds.sort()).toEqual([other2UserId, other3UserId].sort())
@@ -110,7 +110,7 @@ test('Ordering of potential matches', async () => {
   await misc.sleep(2000)
   await ourClient
     .query({query: queries.matchedUsers, variables: {matchStatus: 'POTENTIAL'}})
-    .then(({data: {user}}) => {
+    .then(({data: {self: user}}) => {
       const matchedUserIds = user.matchedUsers.items.map((i) => i.userId)
       expect(matchedUserIds).toEqual([other3UserId, other2UserId, other1UserId])
     })

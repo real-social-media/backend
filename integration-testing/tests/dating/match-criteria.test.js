@@ -20,7 +20,7 @@ afterAll(async () => await loginCache.reset())
 const datingVariables = {
   fullName: 'Hunter S',
   gender: 'FEMALE',
-  location: {latitude: 30, longitude: 0},
+  location: {latitude: 30, longitude: 0}, // different from that used in other test suites
   dateOfBirth: '2000-01-01',
   matchAgeRange: {min: 20, max: 30},
   matchGenders: ['FEMALE'],
@@ -41,7 +41,7 @@ test('We do not match ourselves', async () => {
     .mutate({mutation: mutations.addPost, variables: {postId, imageData: imageDataB64, takenInReal: true}})
     .then(({data: {addPost: post}}) => expect(post.postId).toBe(postId))
   await client
-    .mutate({mutation: mutations.setUserDetails, variables: datingVariables})
+    .mutate({mutation: mutations.setUserDetails, variables: {...datingVariables, photoPostId: postId}})
     .then(({data: {setUserDetails: user}}) => expect(user.userId).toBe(userId))
   await misc.sleep(2000)
   await client

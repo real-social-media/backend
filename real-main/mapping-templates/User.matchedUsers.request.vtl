@@ -31,10 +31,10 @@
   "operation": "Query",
   "query": {
     "expression": "#pk = :pk",
-    "expressionNames": {"#pk": $attr},
-    "expressionValues": {":pk": {"S": $callerUserId}}
+    "expressionNames": {"#pk": "$attr"},
+    "expressionValues": {":pk": {"S": "$callerUserId"}}
   },
-  "index": $index,
+  "index": "$index",
   "scanIndexForward": false,
   "limit": $limit
   #if ($ctx.args.nextToken)

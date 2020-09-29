@@ -533,7 +533,7 @@ module.exports.chatUsers = gql`
 `
 
 module.exports.matchedUsers = gql`
-  query MatchedUsers($matchStatus: MatchStatus) {
+  query MatchedUsers($matchStatus: MatchStatus!) {
     self {
       userId
       matchedUsers(matchStatus: $matchStatus) {

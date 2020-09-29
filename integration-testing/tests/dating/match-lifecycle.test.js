@@ -20,7 +20,7 @@ afterAll(async () => await loginCache.reset())
 const datingVariables = {
   fullName: 'Hunter S',
   gender: 'FEMALE',
-  location: {latitude: 30, longitude: 0},
+  location: {latitude: 30, longitude: 50}, // different from that used in other test suites
   dateOfBirth: '2000-01-01',
   matchAgeRange: {min: 20, max: 30},
   matchGenders: ['FEMALE'],
@@ -34,10 +34,10 @@ test('Reject and approve match - error cases and basic success', async () => {
   // verify we can't approve or reject them
   await expect(
     ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Match does not exist/)
   await expect(
     ourClient.mutate({mutation: mutations.approveMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Match does not exist/)
 
   // we both set details that would *almost* make us match each other, and enable dating
   const [pid1, pid2] = [uuidv4(), uuidv4()]
@@ -67,13 +67,16 @@ test('Reject and approve match - error cases and basic success', async () => {
   // verify we still can't approve or reject them
   await expect(
     ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Match does not exist/)
   await expect(
     ourClient.mutate({mutation: mutations.approveMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Match does not exist/)
 
   // we adjust our details, so now we are a match, so now we can reject them and they can approve us
   await ourClient.mutate({mutation: mutations.setUserDetails, variables: {gender: 'FEMALE'}})
+  await ourClient
+    .query({query: queries.user, variables: {userId: theirUserId}})
+    .then(({data: {user}}) => expect(user.matchStatus).toBe('POTENTIAL'))
   await misc.sleep(2000)
   await ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}})
   await theirClient.mutate({mutation: mutations.approveMatch, variables: {userId: ourUserId}})
