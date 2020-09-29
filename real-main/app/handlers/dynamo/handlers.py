@@ -7,7 +7,7 @@ from app import clients, models
 from app.handlers import xray
 from app.logging import LogLevelContext, handler_logging
 from app.models.follower.enums import FollowStatus
-from app.models.user.enums import UserStatus, UserSubscriptionLevel
+from app.models.user.enums import UserDatingStatus, UserStatus, UserSubscriptionLevel
 
 from .dispatch import DynamoDispatch
 
@@ -26,6 +26,7 @@ clients = {
     'dynamo_feed': clients.DynamoClient(table_name=DYNAMO_FEED_TABLE),
     'elasticsearch': clients.ElasticSearchClient(),
     'pinpoint': clients.PinpointClient(),
+    'real_dating': clients.RealDatingClient(),
     's3_uploads': clients.S3Client(S3_UPLOADS_BUCKET),
 }
 
@@ -264,6 +265,13 @@ register(
     ['INSERT', 'MODIFY'],
     user_manager.on_user_date_of_birth_change_update_age,
     {'dateOfBirth': None},
+)
+register(
+    'user',
+    'profile',
+    ['INSERT', 'MODIFY'],
+    user_manager.on_user_dating_status_change_update_dating,
+    {'datingStatus': UserDatingStatus.DISABLED},
 )
 register(
     'user',

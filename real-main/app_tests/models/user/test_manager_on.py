@@ -6,7 +6,7 @@ import pytest
 
 from app.models.appstore.enums import AppStoreSubscriptionStatus
 from app.models.post.enums import PostStatus, PostType
-from app.models.user.enums import UserStatus, UserSubscriptionLevel
+from app.models.user.enums import UserDatingStatus, UserStatus, UserSubscriptionLevel
 from app.utils import image_size
 
 
@@ -466,3 +466,18 @@ def test_on_user_date_of_birth_change_update_age(user_manager, user):
     user.update_details(date_of_birth='2020-01-01')
     user_manager.on_user_date_of_birth_change_update_age(user.id, new_item=user.item, old_item=old_item)
     assert 'age' in user.refresh_item().item
+
+
+def test_on_user_dating_status_change_update_dating(user_manager, user):
+    assert 'datingStatus' not in user.refresh_item().item
+    # won't get called for creation of a user with datingStatus DISABLED
+
+    # fire simulating the editing of a user to enable dating
+    new_item = {**user.item, 'datingStatus': UserDatingStatus.ENABLED}
+    user_manager.on_user_dating_status_change_update_dating(user.id, new_item=new_item, old_item=user.item)
+    assert user_manager.real_dating_client.mock_calls == [call.put_user(new_item)]
+
+    # fire simulating the editing of a user to disable dating
+    user_manager.real_dating_client.reset_mock()
+    user_manager.on_user_dating_status_change_update_dating(user.id, new_item=user.item, old_item=new_item)
+    assert user_manager.real_dating_client.mock_calls == [call.remove_user(user.id)]

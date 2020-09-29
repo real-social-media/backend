@@ -149,6 +149,11 @@ def google_client():
 
 
 @pytest.fixture
+def real_dating_client():
+    yield mock.Mock(clients.RealDatingClient())
+
+
+@pytest.fixture
 def pinpoint_client():
     yield mock.Mock(clients.PinpointClient(app_id='my-app-id'))
 
@@ -275,6 +280,7 @@ def user_manager(
     google_client,
     pinpoint_client,
     elasticsearch_client,
+    real_dating_client,
 ):
     yield models.UserManager(
         {
@@ -289,5 +295,6 @@ def user_manager(
             'google': google_client,
             'pinpoint': pinpoint_client,
             'elasticsearch': elasticsearch_client,
+            'real_dating': real_dating_client,
         }
     )

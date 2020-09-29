@@ -16,7 +16,7 @@ from app.models.post.enums import PostStatus
 from app.utils import GqlNotificationType
 
 from .dynamo import UserContactAttributeDynamo, UserDynamo
-from .enums import UserStatus, UserSubscriptionLevel
+from .enums import UserDatingStatus, UserStatus, UserSubscriptionLevel
 from .exceptions import UserAlreadyExists, UserException, UserValidationException
 from .model import User
 
@@ -37,6 +37,7 @@ class UserManager(TrendingManagerMixin, ManagerBase):
         'facebook',
         'google',
         'pinpoint',
+        'real_dating',
         's3_uploads',
         's3_placeholder_photos',
     ]
@@ -455,6 +456,15 @@ class UserManager(TrendingManagerMixin, ManagerBase):
 
     def on_user_date_of_birth_change_update_age(self, user_id, new_item, old_item=None):
         self.init_user(new_item).update_age()
+
+    def on_user_dating_status_change_update_dating(self, user_id, new_item, old_item=None):
+        new_status = new_item.get('datingStatus', UserDatingStatus.DISABLED)
+        if new_status == UserDatingStatus.ENABLED:
+            self.real_dating_client.put_user(new_item)
+        elif new_status == UserDatingStatus.DISABLED:
+            self.real_dating_client.remove_user(user_id)
+        else:
+            raise Exception(f'Unrecognized dating status: `{new_status}`')
 
     def update_ages(self, now=None):
         now = now or pendulum.now('utc')
