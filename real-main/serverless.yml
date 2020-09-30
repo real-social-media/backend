@@ -119,7 +119,7 @@ provider:
       Action: mobiletargeting:*
       Resource: !Join [ /, [ !GetAtt PinpointApp.Arn, '*' ] ]
     - Effect: Allow
-      Action: lambda:InvokeFuction
+      Action: lambda:InvokeFunction
       Resource:
         - ${self:provider.environment.REAL_DATING_PUT_USER_ARN}
         - ${self:provider.environment.REAL_DATING_REMOVE_USER_ARN}

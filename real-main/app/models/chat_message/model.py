@@ -1,4 +1,3 @@
-import decimal
 import json
 import logging
 
@@ -6,19 +5,11 @@ import pendulum
 
 from app.mixins.flag.model import FlagModelMixin
 from app.models.block.enums import BlockStatus
+from app.utils import DecimalJsonEncoder
 
 from .exceptions import ChatMessageException
 
 logger = logging.getLogger()
-
-
-class DecimalJsonEncoder(json.JSONEncoder):
-    "Helper class that can handle encoding decimals into json (as floats, percision lost)"
-
-    def default(self, obj):
-        if isinstance(obj, decimal.Decimal):
-            return float(obj)
-        return super(DecimalJsonEncoder, self).default(obj)
 
 
 class ChatMessage(FlagModelMixin):

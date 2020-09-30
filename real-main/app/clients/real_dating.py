@@ -3,6 +3,8 @@ import os
 
 import boto3
 
+from app.utils import DecimalJsonEncoder
+
 PUT_USER_ARN = os.environ.get('REAL_DATING_PUT_USER_ARN')
 REMOVE_USER_ARN = os.environ.get('REAL_DATING_REMOVE_USER_ARN')
 MATCH_STATUS_ARN = os.environ.get('REAL_DATING_MATCH_STATUS_ARN')
@@ -24,7 +26,7 @@ class RealDatingClient:
         self.boto3_client.invoke(
             FunctionName=self.put_user_arn,
             InvocationType='Event',  # async
-            Payload=json.dumps({'userItem': user_item}),
+            Payload=json.dumps(user_item, cls=DecimalJsonEncoder),
         )
 
     def remove_user(self, user_id):

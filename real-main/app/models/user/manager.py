@@ -460,7 +460,8 @@ class UserManager(TrendingManagerMixin, ManagerBase):
     def on_user_dating_status_change_update_dating(self, user_id, new_item, old_item=None):
         new_status = new_item.get('datingStatus', UserDatingStatus.DISABLED)
         if new_status == UserDatingStatus.ENABLED:
-            self.real_dating_client.put_user(new_item)
+            user_item_defaults = {'serviceLevel': UserSubscriptionLevel.BASIC}
+            self.real_dating_client.put_user({**user_item_defaults, **new_item})
         elif new_status == UserDatingStatus.DISABLED:
             self.real_dating_client.remove_user(user_id)
         else:

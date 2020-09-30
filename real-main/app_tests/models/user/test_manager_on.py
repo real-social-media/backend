@@ -474,8 +474,9 @@ def test_on_user_dating_status_change_update_dating(user_manager, user):
 
     # fire simulating the editing of a user to enable dating
     new_item = {**user.item, 'datingStatus': UserDatingStatus.ENABLED}
+    new_item_with_defaults = {**new_item, 'serviceLevel': UserSubscriptionLevel.BASIC}
     user_manager.on_user_dating_status_change_update_dating(user.id, new_item=new_item, old_item=user.item)
-    assert user_manager.real_dating_client.mock_calls == [call.put_user(new_item)]
+    assert user_manager.real_dating_client.mock_calls == [call.put_user(new_item_with_defaults)]
 
     # fire simulating the editing of a user to disable dating
     user_manager.real_dating_client.reset_mock()
