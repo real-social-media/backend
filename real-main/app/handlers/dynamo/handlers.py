@@ -7,7 +7,7 @@ from app import clients, models
 from app.handlers import xray
 from app.logging import LogLevelContext, handler_logging
 from app.models.follower.enums import FollowStatus
-from app.models.user.enums import UserDatingStatus, UserStatus, UserSubscriptionLevel
+from app.models.user.enums import UserStatus, UserSubscriptionLevel
 
 from .dispatch import DynamoDispatch
 
@@ -266,13 +266,7 @@ register(
     user_manager.on_user_date_of_birth_change_update_age,
     {'dateOfBirth': None},
 )
-register(
-    'user',
-    'profile',
-    ['INSERT', 'MODIFY'],
-    user_manager.on_user_dating_status_change_update_dating,
-    {'datingStatus': UserDatingStatus.DISABLED},
-)
+register('user', 'profile', ['INSERT', 'MODIFY'], user_manager.on_user_change_update_dating)
 register(
     'user',
     'profile',

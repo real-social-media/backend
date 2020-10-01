@@ -22,11 +22,11 @@ class RealDatingClient:
         self.remove_user_arn = remove_user_arn
         self.match_status_arn = match_status_arn
 
-    def put_user(self, user_item):
+    def put_user(self, user_id, user_dating_profile):
         self.boto3_client.invoke(
             FunctionName=self.put_user_arn,
             InvocationType='Event',  # async
-            Payload=json.dumps(user_item, cls=DecimalJsonEncoder),
+            Payload=json.dumps({'userId': user_id, **user_dating_profile}, cls=DecimalJsonEncoder),
         )
 
     def remove_user(self, user_id):

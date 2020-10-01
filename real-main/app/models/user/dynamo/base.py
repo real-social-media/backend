@@ -257,14 +257,15 @@ class UserDynamo:
         }
         return self.client.update_item(query_kwargs)
 
-    def set_user_dating_status(self, user_id, status):
+    def set_user_dating_status(self, user_id, status, fail_softly=False):
         query_kwargs = {'Key': self.pk(user_id)}
         if status == UserDatingStatus.DISABLED:
             query_kwargs['UpdateExpression'] = 'REMOVE datingStatus'
         else:
             query_kwargs['UpdateExpression'] = 'SET datingStatus = :ds'
             query_kwargs['ExpressionAttributeValues'] = {':ds': status}
-        return self.client.update_item(query_kwargs)
+        failure_warning = 'User does not exist' if fail_softly else None
+        return self.client.update_item(query_kwargs, failure_warning=failure_warning)
 
     def update_subscription(self, user_id, level, granted_at=None, expires_at=None):
         assert level != UserSubscriptionLevel.BASIC, "Cannot grant BASIC subscriptions"

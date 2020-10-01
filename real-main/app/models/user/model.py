@@ -445,29 +445,47 @@ class User(TrendingModelMixin):
         )
         return self
 
-    def set_dating_status(self, status=None):
+    def generate_dating_profile(self):
+        fields = {
+            'age',
+            'gender',
+            'location',
+            'matchAgeRange',
+            'matchGenders',
+            'matchLocationRadius',
+            'serviceLevel',
+        }
+        return {
+            'serviceLevel': UserSubscriptionLevel.BASIC,
+            **{k: self.item[k] for k in fields if k in self.item},
+        }
+
+    def validate_can_enable_dating(self):
+        # bunch of validation required to enable dating, by spec
+        required_fields = {
+            'fullName',
+            'photoPostId',
+            'age',
+            'gender',
+            'location',
+            'matchAgeRange',
+            'matchGenders',
+        }
+        if self.subscription_level == UserSubscriptionLevel.BASIC:
+            required_fields.add('matchLocationRadius')
+        if (missing := required_fields - set(self.item.keys())) :
+            raise UserException(f'`{missing}` required to enable dating')
+        age = self.item['age']
+        if age < 18 or age > 100:
+            raise UserException(f'age `{age}` must be between 18 and 100 to enable dating')
+        if self.item['matchGenders'] == []:
+            raise UserException('matchGenders cannot be empty')
+
+    def set_dating_status(self, status):
         if status == self.item.get('datingStatus', UserDatingStatus.DISABLED):
             return self
-
-        # bunch of validation required to enable dating, by spec
         if status == UserDatingStatus.ENABLED:
-            required_fields = {
-                'fullName',
-                'photoPostId',
-                'age',
-                'gender',
-                'location',
-                'matchAgeRange',
-                'matchGenders',
-            }
-            if self.subscription_level == UserSubscriptionLevel.BASIC:
-                required_fields.add('matchLocationRadius')
-            if (missing := required_fields - set(self.item.keys())) :
-                raise UserException(f'`{missing}` required to enable dating')
-            age = self.item['age']
-            if age < 18 or age > 100:
-                raise UserException(f'age `{age}` must be between 18 and 100 to enable dating')
-
+            self.validate_can_enable_dating()
         self.item = self.dynamo.set_user_dating_status(self.id, status)
         return self
 
