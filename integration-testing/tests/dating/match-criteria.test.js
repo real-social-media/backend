@@ -7,7 +7,7 @@ const {mutations, queries} = require('../../schema')
 const imageData = misc.generateRandomJpeg(8, 8)
 const imageDataB64 = new Buffer.from(imageData).toString('base64')
 const loginCache = new cognito.AppSyncLoginCache()
-//jest.retryTimes(1) TODO
+jest.retryTimes(1)
 
 beforeAll(async () => {
   loginCache.addCleanLogin(await cognito.getAppSyncLogin())

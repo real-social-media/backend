@@ -7,7 +7,7 @@ const {mutations, queries} = require('../../schema')
 const imageData = misc.generateRandomJpeg(8, 8)
 const imageDataB64 = new Buffer.from(imageData).toString('base64')
 const loginCache = new cognito.AppSyncLoginCache()
-//jest.retryTimes(1) TODO
+jest.retryTimes(1)
 
 beforeAll(async () => {
   loginCache.addCleanLogin(await cognito.getAppSyncLogin())
@@ -74,6 +74,7 @@ test('Reject and approve match - error cases and basic success', async () => {
 
   // we adjust our details, so now we are a match, so now we can reject them and they can approve us
   await ourClient.mutate({mutation: mutations.setUserDetails, variables: {gender: 'FEMALE'}})
+  await misc.sleep(2000)
   await ourClient
     .query({query: queries.user, variables: {userId: theirUserId}})
     .then(({data: {user}}) => expect(user.matchStatus).toBe('POTENTIAL'))
@@ -128,10 +129,10 @@ test('POTENTIAL -> CONFIRMED', async () => {
   // check now we can't reject them, or re-approve them
   await expect(
     ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
   await expect(
     ourClient.mutate({mutation: mutations.approveMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
 
   // they approve us, check statuses
   await theirClient.mutate({mutation: mutations.approveMatch, variables: {userId: ourUserId}})
@@ -146,10 +147,10 @@ test('POTENTIAL -> CONFIRMED', async () => {
   // check now they can't reject us, or re-approve us
   await expect(
     theirClient.mutate({mutation: mutations.rejectMatch, variables: {userId: ourUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
   await expect(
     theirClient.mutate({mutation: mutations.approveMatch, variables: {userId: ourUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
 })
 
 test('POTENTIAL -> REJECTED & APPROVED', async () => {
@@ -206,7 +207,7 @@ test('POTENTIAL -> REJECTED & APPROVED', async () => {
     .then(({data: {user}}) => expect(user.matchStatus).toBe('POTENTIAL'))
 
   // we reject them, check statues
-  await ourClient.mutate({mutation: mutations.approveMatch, variables: {userId: theirUserId}})
+  await ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}})
   await misc.sleep(2000)
   await ourClient
     .query({query: queries.user, variables: {userId: theirUserId}})
@@ -218,10 +219,10 @@ test('POTENTIAL -> REJECTED & APPROVED', async () => {
   // check now we can't reject them, or re-approve them
   await expect(
     ourClient.mutate({mutation: mutations.rejectMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
   await expect(
     ourClient.mutate({mutation: mutations.approveMatch, variables: {userId: theirUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
 
   // they approve us, check statuses
   await theirClient.mutate({mutation: mutations.approveMatch, variables: {userId: ourUserId}})
@@ -236,8 +237,8 @@ test('POTENTIAL -> REJECTED & APPROVED', async () => {
   // check now they can't reject us, or re-approve us
   await expect(
     theirClient.mutate({mutation: mutations.rejectMatch, variables: {userId: ourUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
   await expect(
     theirClient.mutate({mutation: mutations.approveMatch, variables: {userId: ourUserId}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Invalid match transition/)
 })

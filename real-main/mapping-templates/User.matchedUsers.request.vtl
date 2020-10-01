@@ -23,7 +23,7 @@
   #set ($attr = 'userIdGSIConfirmed')
   #set ($index = 'GSI-confirmed')
 #else
-  $util.error("Cannot request using status $matchStatus", 'ClientError')
+  $util.error("ClientError: Cannot request using status $matchStatus", 'ClientError')
 #end
 
 {

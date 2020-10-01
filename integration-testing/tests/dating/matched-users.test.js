@@ -7,7 +7,7 @@ const {mutations, queries} = require('../../schema')
 const imageData = misc.generateRandomJpeg(8, 8)
 const imageDataB64 = new Buffer.from(imageData).toString('base64')
 const loginCache = new cognito.AppSyncLoginCache()
-//jest.retryTimes(1) TODO
+jest.retryTimes(1)
 
 beforeAll(async () => {
   loginCache.addCleanLogin(await cognito.getAppSyncLogin())
@@ -76,6 +76,7 @@ test('Ordering of potential matches', async () => {
     .then(({data: {setUserDatingStatus: user}}) => expect(user.datingStatus).toBe('ENABLED'))
 
   // check list of potential matches, order not defined
+  await misc.sleep(2000)
   await ourClient
     .query({query: queries.matchedUsers, variables: {matchStatus: 'POTENTIAL'}})
     .then(({data: {self: user}}) => {
@@ -143,6 +144,7 @@ test('Privacy, lifecycle to REJECT', async () => {
     .then(({data: {setUserDatingStatus: user}}) => expect(user.datingStatus).toBe('ENABLED'))
 
   // check all our our lists of matches
+  await misc.sleep(2000)
   await ourClient
     .query({query: queries.allMatchedUsersForUser, variables: {userId: ourUserId}})
     .then(({data: {user}}) => {
@@ -159,7 +161,7 @@ test('Privacy, lifecycle to REJECT', async () => {
       expect(user.potentialMatchedUsers).toBeNull()
       expect(user.rejectedMatchedUsers).toBeNull()
       expect(user.approvedMatchedUsers).toBeNull()
-      expect(user.confirmedMatchedUser).toBeNull()
+      expect(user.confirmedMatchedUsers).toBeNull()
     })
 
   // we reject them, check lists of matches
@@ -177,7 +179,7 @@ test('Privacy, lifecycle to REJECT', async () => {
   // verify we can't query for NOT_MATCHED
   await expect(
     ourClient.query({query: queries.matchedUsers, variables: {matchStatus: 'NOT_MATCHED'}}),
-  ).rejects.toThrow(/ClientError: TODO/)
+  ).rejects.toThrow(/ClientError: Cannot request using status NOT_MATCHED/)
 })
 
 test('Lifecycle to CONFIRMED', async () => {
@@ -207,6 +209,7 @@ test('Lifecycle to CONFIRMED', async () => {
     .then(({data: {setUserDatingStatus: user}}) => expect(user.datingStatus).toBe('ENABLED'))
 
   // check all our our lists of matches
+  await misc.sleep(2000)
   await ourClient
     .query({query: queries.allMatchedUsersForUser, variables: {userId: ourUserId}})
     .then(({data: {user}}) => {
