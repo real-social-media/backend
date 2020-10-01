@@ -107,11 +107,19 @@ _Once per deployment_
 
 ### Other stacks outside this repo
 
-The stacks in the following repos will need to be deployed before these
+Please talk to the backend team lead to get access to these stacks.
 
-- `themes`
+#### `themes`
+
+_Required, must be deployed before real-main_
 
 The `themes` stack will create an S3 bucket, within which there is a subdirectory `placeholder-photos`. The integration tests in this repo expect that subdirectory to be empty.
+
+#### `dating`
+
+_Optional, no deployment order constraints_
+
+Only required in order for dating-related operations and tests to work correctly.
 
 ### First-time stack deployment order
 
