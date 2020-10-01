@@ -325,7 +325,7 @@ class UserManager(TrendingManagerMixin, ManagerBase):
         self.dynamo.add_user_deleted(user_id)
         self.elasticsearch_client.delete_user(user_id)
         self.pinpoint_client.delete_user_endpoints(user_id)
-        self.real_dating_client.remove_user(user_id)
+        self.real_dating_client.remove_user(user_id, fail_soft=True)
 
         user = self.init_user(old_item)
         user.clear_photo_s3_objects()

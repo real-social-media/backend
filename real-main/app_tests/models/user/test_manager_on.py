@@ -116,7 +116,7 @@ def test_on_user_delete_calls_pinpoint(user_manager, user):
 def test_on_user_delete_calls_dating_project(user_manager, user):
     with patch.object(user_manager, 'real_dating_client') as rdc_mock:
         user_manager.on_user_delete(user.id, old_item=user.item)
-    assert rdc_mock.mock_calls == [call.remove_user(user.id)]
+    assert rdc_mock.mock_calls == [call.remove_user(user.id, fail_soft=True)]
 
 
 def test_on_user_delete_adds_user_deleted_subitem(user_manager, user):

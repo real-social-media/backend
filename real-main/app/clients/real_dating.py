@@ -1,9 +1,12 @@
 import json
+import logging
 import os
 
 import boto3
 
 from app.utils import DecimalJsonEncoder
+
+logger = logging.getLogger()
 
 PUT_USER_ARN = os.environ.get('REAL_DATING_PUT_USER_ARN')
 REMOVE_USER_ARN = os.environ.get('REAL_DATING_REMOVE_USER_ARN')
@@ -29,12 +32,17 @@ class RealDatingClient:
             Payload=json.dumps({'userId': user_id, **user_dating_profile}, cls=DecimalJsonEncoder),
         )
 
-    def remove_user(self, user_id):
-        self.boto3_client.invoke(
-            FunctionName=self.remove_user_arn,
-            InvocationType='Event',  # async
-            Payload=json.dumps({'userId': user_id}),
-        )
+    def remove_user(self, user_id, fail_soft=False):
+        try:
+            self.boto3_client.invoke(
+                FunctionName=self.remove_user_arn,
+                InvocationType='Event',  # async
+                Payload=json.dumps({'userId': user_id}),
+            )
+        except Exception as err:
+            if not fail_soft:
+                raise err
+            logger.warning(f'Unable to remove user from real dating: {err}')
 
     def match_status(self, user_id, match_user_id):
         self.boto3_client.invoke(
